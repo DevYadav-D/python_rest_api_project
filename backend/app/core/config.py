@@ -1,19 +1,15 @@
-from pydantic import Field
-from pydantic_settings import BaseSettings
+import os
+from dotenv import load_dotenv
 
-class Settings(BaseSettings):
+load_dotenv()
 
-    app_name: str = Field(..., env="APP_NAME")
-    debug: bool = Field(..., env="DEBUG")
+class Settings:
 
-    user_db_url: str = Field(..., env="USER_DB_URL")
+    app_name = os.getenv("APP_NAME", "RESTAPI")
+    debug = os.getenv("DEBUG", "True") == "True"
 
-    host: str = Field(..., env="HOST")
-    port: int = Field(..., env="PORT")
+    user_db_url = os.getenv("USER_DB_URL", "sqlite:///./user.db")
 
-    backend_url: str = Field(..., env="BACKEND_URL")
-
-    class Config:
-        env_file = ".env"
+    backend_url = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 settings = Settings()
