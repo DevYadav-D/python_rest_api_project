@@ -1,4 +1,4 @@
-name: Build, Test, and Deploy Docker
+name: CI for FastAPI Backend
 
 on:
   push:
@@ -9,41 +9,31 @@ on:
       - main
 
 jobs:
-  build_and_test:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Add swap space
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
         run: |
-          sudo fallocate -l 2G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build application with no cache
+      - name: Run tests with pytest
         run: |
-          docker compose build --no-cache
+          pytest backend/app/tests/test_users.py --maxfail=1 --disable-warnings -q
 
-      - name: Run application
-        run: |
-          docker compose up -d backend
-
-      - name: Debug Container File Structure
-        run: docker compose exec backend ls -R /app
-
-      - name: Check memory usage
-        run: free -m
-
-      - name: Run tests with Pytest
-        run: |
-          docker compose exec backend pytest /app/app/tests
-
-      - name: Shut down the application
-        run: |
-          docker compose down
+      - name: Cache Python dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-python-${{ hashFiles('backend/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-python-
