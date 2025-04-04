@@ -1,5 +1,7 @@
+# Example .dockerignore file
 .venv/
 *.pyc
 __pycache__/
 *.log
 # *.env
+

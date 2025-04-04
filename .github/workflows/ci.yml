@@ -21,14 +21,14 @@ jobs:
 
       - name: Build and Run application
         run: |
-          docker compose up --build -d backend
+          docker compose up --build --no-cache -d backend
 
-      - name: Check memory usage
-        run: free -m
+      - name: Debug Container File Structure
+        run: docker compose exec backend ls -R /app
 
       - name: Run tests with Pytest
         run: |
-          docker compose run test
+          docker compose exec backend pytest /app/app/tests
 
       - name: Shut down the application
         run: |
