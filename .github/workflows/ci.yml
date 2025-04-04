@@ -31,7 +31,7 @@ jobs:
           pytest backend/app/tests/test_users.py --maxfail=1 --disable-warnings -q
 
       - name: Cache Python dependencies
-        uses: actions/cache@v3.0.11
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-python-${{ hashFiles('backend/requirements.txt') }}
