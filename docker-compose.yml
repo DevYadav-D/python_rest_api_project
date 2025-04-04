@@ -5,3 +5,8 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
+  test:
+    build: ./backend
+    command: pytest
+    depends_on:
+      - backend
