@@ -23,9 +23,9 @@ jobs:
         run: |
           docker compose up --build -d backend
 
-      - name: Run test
+      - name: Run test with Pytest
         run: |
-          docker compose run backend pytest /app/test
+          docker compose exec backend pytest /app/tests
 
       - name: Shut down the application
         run: |
