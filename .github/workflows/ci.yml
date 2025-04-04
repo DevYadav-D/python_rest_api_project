@@ -21,15 +21,15 @@ jobs:
 
       - name: Build and Run application
         run: |
-          docker compose up --build -d
-
-      - name: Shut down the application
-        run: |
-          docker compose down
+          docker compose up --build -d backend
 
       - name: Run test
         run: |
           docker compose run backend pytest /app/test
+
+      - name: Shut down the application
+        run: |
+          docker compose down
 
       - name: Build test image
         run: |

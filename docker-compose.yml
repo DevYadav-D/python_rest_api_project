@@ -7,6 +7,6 @@ services:
       - "8000:8000"
   test:
     build: ./backend
-    command: pytest
+    command: pytest /app/tests
     depends_on:
       - backend
