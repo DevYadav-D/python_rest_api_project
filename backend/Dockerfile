@@ -4,10 +4,7 @@ WORKDIR /app
 
 COPY . /app
 
-COPY ./app/tests /app/tests
-
 RUN pip install --no-cache-dir -r requirements.txt
-
 RUN pip install pytest
 
 EXPOSE 8000
