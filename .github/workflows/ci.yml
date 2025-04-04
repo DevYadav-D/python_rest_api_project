@@ -23,12 +23,12 @@ jobs:
         run: |
           docker compose up --build -d backend
 
-      - name: Debug Container File Structure
-        run: docker compose exec backend ls -R /app
+      - name: Check memory usage
+        run: free -m
 
-      - name: Run test with Pytest
+      - name: Run tests with Pytest
         run: |
-          docker compose exec backend pytest /app/app/tests
+          docker compose run test
 
       - name: Shut down the application
         run: |
