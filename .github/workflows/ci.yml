@@ -23,6 +23,9 @@ jobs:
         run: |
           docker compose up --build -d backend
 
+      - name: Debug Container
+        run: docker compose exec backend ls -R /app
+
       - name: Run test with Pytest
         run: |
           docker compose exec backend pytest /app/tests
