@@ -2,19 +2,26 @@ from sqlalchemy.orm import Session
 from models.users.model import User
 from schemas.users.schema import UserCreate, UserUpdate
 from sqlalchemy.exc import SQLAlchemyError
+from passlib.context import CryptContext
 import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+#password hashing 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+def get_password_hash(password:str) -> str:
+    return pwd_context.hash(password)
+
 def create_user(db:Session, user:UserCreate) -> User | None:
     try:
+        hashed_password = get_password_hash(user.password)
         new_user = User(
             first_name = user.first_name, 
             last_name = user.last_name,
             age = user.age,
             email = user.email,
-            password = user.password,
+            password = hashed_password,
         )
         db.add(new_user)
         db.commit()
