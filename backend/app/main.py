@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
+
 
 from core.config import settings
 from core.database import init_db
@@ -7,6 +9,14 @@ from routers.users.router import router as user_router
 
 app = FastAPI(title=settings.app_name)
 
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"], 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
