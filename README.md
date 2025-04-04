@@ -10,6 +10,7 @@
   -- Note: In python 3 sqlite3 libray is already included in the standard library, so we can use sqlite db (instead of using an in-memory data store like list etc)
 - pip install sqlalchemy //used as the object relational mapper(ORM) to facilitate seamless interaction between the application and sqlite db(or any db in future), simplifying database operations.
 - pip freeze > requirements.txt //to update the requiremets.txt
+  pip install
 
 # project hierarchy
 
