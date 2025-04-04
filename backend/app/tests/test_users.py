@@ -2,7 +2,6 @@ import pytest
 import sys
 import os
 
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../backend/app")))
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/.."))
 
 
@@ -12,6 +11,10 @@ from core.database import UserORM, get_user_db, user_session_local
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models.users.model import User
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 TEST_DB_URL = "sqlite:///./test.db" 
 test_db_engine = create_engine(TEST_DB_URL, connect_args={"check_same_thread":False})
@@ -42,6 +45,9 @@ def cleanup_test_db():
     finally:
         db.close()
 
+
+hashed_password = pwd_context.hash("securePassword")
+
 @pytest.fixture(scope="function")
 def setup_test_data():
     db = test_session_local()
@@ -50,7 +56,7 @@ def setup_test_data():
         last_name = "User",
         age =25,
         email = "test@test.com",
-        password="securePassword"
+        password=hashed_password
     )
     db.add(test_user)
     db.commit()
@@ -103,4 +109,35 @@ def test_delete_user(setup_test_data):
     response = client.delete(f"/users/{user_id}")
     assert response.status_code == 204
 
+
+def test_user_login(setup_test_data):
+    payload = {
+        "email": "test@test.com",
+        "password": "securePassword"  # This is the plain password used in `setup_test_data`
+    }
+    response = client.post("/users/login", json=payload)
+    print(response.json())
+    assert response.status_code == 200
+    assert "access_token" in response.json()
+    assert response.json()["token_type"] == "bearer"
+
+def test_user_login_invalid_password(setup_test_data):
+    payload = {
+        "email": "test@test.com",
+        "password": "wrongPassword"
+    }
+    response = client.post("/users/login", json=payload)
+    print(response.json())
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid email or password"
+
+def test_user_login_invalid_email(setup_test_data):
+    payload = {
+        "email": "invalidemail@test.com",
+        "password": "securePassword"
+    }
+    response = client.post("/users/login", json=payload)
+    print(response.json())
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid email or password"
 

@@ -28,3 +28,11 @@ class User(UserBase):
 
 class DeleteUser(BaseModel):
     message:str
+
+class LoginCredentials(BaseModel):
+    email: EmailStr
+    password: str
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"

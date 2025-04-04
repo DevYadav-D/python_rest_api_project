@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from core.database import get_user_db
-from schemas.users.schema import User, UserCreate, UserUpdate
-from services.users.service import create_user, get_all_users, get_user, update_user, delete_user
+from schemas.users.schema import User, UserCreate, UserUpdate, LoginCredentials, TokenResponse
+from services.users.service import create_user, get_all_users, get_user, update_user, delete_user, authenticate_user
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -43,3 +43,10 @@ def deleted_user_endpoint(user_id: int, db:Session=Depends(get_user_db)):
     if is_deleted is None:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="server error")
     return None
+
+@router.post("/login", response_model=TokenResponse)
+def login(credentials:LoginCredentials, db:Session=Depends(get_user_db)):
+    authenticated_user = authenticate_user(db, credentials.email, credentials.password)
+    if not authenticate_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password")
+    return authenticated_user

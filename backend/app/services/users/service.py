@@ -3,6 +3,9 @@ from models.users.model import User
 from schemas.users.schema import UserCreate, UserUpdate
 from sqlalchemy.exc import SQLAlchemyError
 from passlib.context import CryptContext
+from services.token_service import create_access_token
+from datetime import timedelta
+from fastapi import HTTPException
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -10,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 #password hashing 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 def get_password_hash(password:str) -> str:
     return pwd_context.hash(password)
 
@@ -26,7 +30,7 @@ def create_user(db:Session, user:UserCreate) -> User | None:
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        logger.info(f'User created successfully: {new_user.first_name}')
+        logger.info(f'User created successfully: {new_user.password}')
         return new_user
     except SQLAlchemyError as e:
         db.rollback()
@@ -85,3 +89,14 @@ def delete_user(db:Session, user_id: int)->bool | None:
         db.rollback()
         logger.error(f'error deleting user',e)
         return None
+    
+
+def verify_password(plain_password:str, hashed_password: str)->bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def authenticate_user(db:Session, email:str, password:str):
+    user = db.query(User).filter(User.email == email).first()
+    if not user or not verify_password(password, user.password):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    access_token = create_access_token(data={'sub':user.email}, expires_delta=timedelta(minutes=10))
+    return {"access_token": access_token, "token_type":"bearer", "user":user}
