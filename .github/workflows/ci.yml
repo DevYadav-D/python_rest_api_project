@@ -19,6 +19,18 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Build and Run application
+        run: |
+          docker compose up --build -d
+
+      - name: Shut down the application
+        run: |
+          docker compose down
+
+      - name: Run test
+        run: |
+          docker compose run backend pytest /app/test
+
       - name: Build test image
         run: |
           docker compose -f docker-compose.yml build
