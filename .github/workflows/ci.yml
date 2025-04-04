@@ -29,7 +29,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t my-app .
+          docker build -f backend/Dockerfile -t my-app .
 
       # Run tests inside the Docker container
       - name: Run tests with Docker
